@@ -10,15 +10,19 @@ const dateToYMD = (date) => {
   const m = date.getMonth() + 1;
   const y = date.getFullYear();
   return (d <= 9 ? "0" + d : d)+ "/" + (m<=9 ? "0" + m : m) + "/" + "" + y;
-  // return "" + y + "/" + (m<=9 ? "0" + m : m) + "/" + (d <= 9 ? "0" + d : d);
 };
+
 
 const getAllPosts = async (req, res) => {
   try {
-    const data = await admin.firestore().collection("posts").get();
+    const data = await admin.firestore().collection("posts")
+        .orderBy("date").get();
     const response = data.docs.map( (doc) => {
-      return {id: doc.id, data: doc.data()};
+      console.log(doc.data.date);
+      const res = {id: doc.id, data: doc.data()};
+      return res;
     });
+
     res.send({success: true, data: response});
   } catch (e) {
     error(res, 501, {success: false, message: "Algo deu errado"});
@@ -51,7 +55,8 @@ const postNewPost = async (req, res) => {
         image: image,
         repo: repo.title && repo.link ? repo : {},
         imageExample: imageExample,
-        date: `${dateToYMD(new Date())}`,
+        dateShow: `${dateToYMD(new Date())}`,
+        date: new Date(),
       });
       res.send({success: true, message: "Post adicionado"});
     } else {
