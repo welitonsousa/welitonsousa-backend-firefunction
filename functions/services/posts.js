@@ -18,12 +18,11 @@ const getAllPosts = async (req, res) => {
     const data = await admin.firestore().collection("posts")
         .orderBy("date").get();
     const response = data.docs.map( (doc) => {
-      console.log(doc.data.date);
       const res = {id: doc.id, data: doc.data()};
       return res;
     });
 
-    res.send({success: true, data: response});
+    res.send({success: true, data: response.reverse()});
   } catch (e) {
     error(res, 501, {success: false, message: "Algo deu errado"});
   }
