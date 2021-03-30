@@ -1,6 +1,7 @@
+/* eslint-disable max-len */
 const auth = require("../auth.json");
 const admin = require("firebase-admin");
-
+const formatText = require("../helper/formatText");
 const {v4: uuidv4} = require("uuid");
 
 const error = (res, statusError, response) => {
@@ -27,6 +28,34 @@ const getAllPosts = async (req, res) => {
     });
 
     res.send({success: true, data: response.reverse()});
+  } catch (e) {
+    error(res, 501, {success: false, message: "Algo deu errado"});
+  }
+};
+
+const getPostsSearch = async (req, res) => {
+  try {
+    const {search = ""} = req.query;
+    const data = await admin
+        .firestore()
+        .collection("posts")
+        .orderBy("date")
+        .get();
+    const response = data.docs.map((doc) => {
+      const res = {id: doc.id, data: doc.data()};
+      return res;
+    });
+
+    const results = response.reverse();
+
+    const finalResult = results.filter((t) => {
+      return (
+        t.data.title.toLowerCase().includes(formatText(search.toLowerCase())) ||
+        t.data.smallDescription.toLowerCase().includes(formatText(search.toLowerCase()))
+      );
+    });
+
+    res.send({success: true, data: finalResult});
   } catch (e) {
     error(res, 501, {success: false, message: "Algo deu errado"});
   }
@@ -88,4 +117,4 @@ const postNewPost = async (req, res) => {
   }
 };
 
-module.exports = {postNewPost, getAllPosts, getPost};
+module.exports = {postNewPost, getAllPosts, getPost, getPostsSearch};

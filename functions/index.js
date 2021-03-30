@@ -3,7 +3,7 @@ const admin = require("firebase-admin");
 const firebaseKey = require("./firebase-key.json");
 const express = require("express");
 const profile = require("./services/profile");
-const {getAllPosts, getPost, postNewPost} = require("./services/posts");
+const {getPostsSearch, getPost, postNewPost} = require("./services/posts");
 const cors = require("cors");
 const app = express();
 
@@ -13,7 +13,7 @@ admin.initializeApp(admin.credential.cert(firebaseKey));
 app.get("/profile", profile);
 
 // routes activities of posts
-app.get("/activities/posts", getAllPosts);
+app.get("/activities/posts", getPostsSearch);
 app.get("/activities/post:id", getPost);
 app.post("/activities/post", postNewPost);
 
